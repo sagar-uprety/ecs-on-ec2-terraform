@@ -25,3 +25,8 @@ variable "region" {
   type        = string
   default     = "us-east-2"
 }
+
+variable "image_url" {
+  description = "Image URL of the docker repo on ECR"
+  type        = string
+}
