@@ -1,5 +1,5 @@
 locals {
-  name     = "lms-ecs-ec2"
+  name     = "lms-ecs-ec2-dev"
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 

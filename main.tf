@@ -49,7 +49,7 @@ module "ecs_cluster" {
       managed_scaling = {
         maximum_scaling_step_size = 2
         minimum_scaling_step_size = 1
-        status                    = "ENABLED"
+        status                    = "DISABLED"
         target_capacity           = 90
       }
 
@@ -70,12 +70,13 @@ module "ecs_service" {
   version = "5.2.2"
 
   # Service
-  name        = "${local.name}-service"
-  cluster_arn = module.ecs_cluster.arn
-  family      = local.name #unique name for task defination
+  name                   = "${local.name}-service"
+  cluster_arn            = module.ecs_cluster.arn
+  family                 = local.name #unique name for task defination
+  enable_execute_command = true
 
-  cpu                               = 2048
-  memory                            = 4096
+  cpu                               = 1536
+  memory                            = 3072
   health_check_grace_period_seconds = 15
 
   # Task Definition
@@ -94,15 +95,27 @@ module "ecs_service" {
   create_task_definition = true
   create_tasks_iam_role  = true #ECS Task Role
 
+  #   volume = {
+  #     my-vol = {}
+  #   }
   volume = {
-    my-vol = {}
+    my-vol = {
+      docker_volume_configuration = {
+        scope         = "shared"
+        autoprovision = true
+        driver        = "local"
+        labels = {
+          "app" = "lms-ecs-docker-volume"
+        }
+      }
+    }
   }
 
   # Container definition(s)
   container_definitions = {
     (local.container_name) = {
-      cpu       = 1536
-      memory    = 3072
+      cpu       = 1024
+      memory    = 2560
       essential = true
       image     = var.image_url
       port_mappings = [
@@ -123,6 +136,7 @@ module "ecs_service" {
 
       enable_cloudwatch_logging              = true
       create_cloudwatch_log_group            = true
+      readonly_root_filesystem               = false
       cloudwatch_log_group_retention_in_days = 30
     }
   }
@@ -237,7 +251,7 @@ module "autoscaling" {
       user_data                  = <<-EOT
         #!/bin/bash
         cat <<'EOF' >> /etc/ecs/ecs.config
-        ECS_CLUSTER=${local.name}
+        ECS_CLUSTER=${local.name}-cluster
         ECS_LOGLEVEL=debug
         ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
         ECS_ENABLE_TASK_IAM_ROLE=true
@@ -251,7 +265,7 @@ module "autoscaling" {
       user_data                  = <<-EOT
         #!/bin/bash
         cat <<'EOF' >> /etc/ecs/ecs.config
-        ECS_CLUSTER=${local.name}
+        ECS_CLUSTER=${local.name}-cluster
         ECS_LOGLEVEL=debug
         ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
         ECS_ENABLE_TASK_IAM_ROLE=true
@@ -329,6 +343,58 @@ module "vpc" {
   single_nat_gateway = true
 
 }
+
+# DynamoDB
+
+module "order_dynamodb_table" {
+  source   = "terraform-aws-modules/dynamodb-table/aws"
+  version  = "3.3.0"
+  name     = "ecs-orders-ms"
+  hash_key = "id"
+
+  attributes = [
+    {
+      name = "id"
+      type = "S"
+    }
+  ]
+
+  tags = local.tags
+}
+
+module "user_dynamodb_table" {
+  source   = "terraform-aws-modules/dynamodb-table/aws"
+  version  = "3.3.0"
+  name     = "ecs-users-ms"
+  hash_key = "id"
+
+  attributes = [
+    {
+      name = "id"
+      type = "S"
+    }
+  ]
+
+  tags = local.tags
+}
+
+module "product_dynamodb_table" {
+  source   = "terraform-aws-modules/dynamodb-table/aws"
+  version  = "3.3.0"
+  name     = "ecs-products-ms"
+  hash_key = "id"
+
+  attributes = [
+    {
+      name = "id"
+      type = "S"
+    }
+  ]
+
+  tags = local.tags
+}
+
+
 
 
 resource "aws_iam_role_policy" "task_definition_role-policy" {
