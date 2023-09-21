@@ -255,6 +255,7 @@ module "autoscaling" {
         ECS_LOGLEVEL=debug
         ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
         ECS_ENABLE_TASK_IAM_ROLE=true
+        ECS_IMAGE_PULL_BEHAVIOR=prefer-cached
         EOF
       EOT
     }
@@ -270,6 +271,7 @@ module "autoscaling" {
         ECS_CONTAINER_INSTANCE_TAGS=${jsonencode(local.tags)}
         ECS_ENABLE_TASK_IAM_ROLE=true
         ECS_ENABLE_SPOT_INSTANCE_DRAINING=true
+        ECS_IMAGE_PULL_BEHAVIOR=prefer-cached
         EOF
       EOT
     }
