@@ -23,10 +23,10 @@ variable "owner" {
 variable "region" {
   description = "Region be used for all the resources"
   type        = string
-  default     = "us-east-2"
+  default     = "us-east-1"
 }
 
 variable "image_url" {
-  description = "Image URL of the docker repo on ECR"
+  description = "URL of the docker image to be used"
   type        = string
 }
