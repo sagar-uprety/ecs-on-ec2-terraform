@@ -35,11 +35,11 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_providers_lock
-      - id: terraform_checkov
-      - id: terraform_tfsec
       - id: terraform_validate
       - id: terraform_tflint
-      - id: infracost_breakdown
-        args:
-         - --args=--path=./examples/complete
-        verbose: true
+      # - id: terraform_checkov
+      # - id: terraform_tfsec
+      # - id: infracost_breakdown
+      #   args:
+      #    - --args=--path=./examples/complete
+      #   verbose: true

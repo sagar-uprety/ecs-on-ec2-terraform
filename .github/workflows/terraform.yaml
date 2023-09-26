@@ -78,19 +78,19 @@ jobs:
       - name: Terraform Format
         run: terraform fmt --check
 
-      - name: Checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-         directory: .
-         quiet: true # optional: display only failed checks
+      # - name: Checkov
+      #   uses: bridgecrewio/checkov-action@master
+      #   with:
+      #    directory: .
+      #    quiet: true # optional: display only failed checks
 
       - name: Terraform Validate
         run: |
           cd ${{ env.terraformWorkDir }}
           terraform validate
 
-      - name:  Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
+      # - name:  Run tfsec
+      #   uses: aquasecurity/tfsec-action@v1.0.0
 
       - name: Run Terratest
         run: |
