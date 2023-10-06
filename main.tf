@@ -14,14 +14,13 @@ module "ecs_cluster" {
     "value" : "enabled"
   }
 
-  # Capacity provider - autoscaling groups
-  default_capacity_provider_use_fargate = false
-
   create_cloudwatch_log_group            = true
   cloudwatch_log_group_retention_in_days = 90
-  # create_task_exec_iam_role              = true # Create IAM role for task execution (Uses Managed AmazonECSTaskExecutionRolePolicy)
-  create_task_exec_policy = true # Create IAM policy for task execution (Uses Managed AmazonECSTaskExecutionRolePolicy)
+  create_task_exec_iam_role              = true # Create IAM role for task execution (Uses Managed AmazonECSTaskExecutionRolePolicy)
+  create_task_exec_policy                = true # Create IAM policy for task execution (Uses Managed AmazonECSTaskExecutionRolePolicy)
 
+  # Capacity provider - autoscaling groups
+  default_capacity_provider_use_fargate = false
 
   autoscaling_capacity_providers = {
     # On-demand instances
@@ -58,7 +57,6 @@ module "ecs_cluster" {
       }
     }
   }
-
 }
 
 ################################################################################
@@ -90,14 +88,10 @@ module "ecs_service" {
     }
   }
 
-
   create_iam_role        = true # ECS Service IAM Role: Allows Amazon ECS to make calls to your load balancer on your behalf.
   create_task_definition = true
   create_tasks_iam_role  = true #ECS Task Role
 
-  #   volume = {
-  #     my-vol = {}
-  #   }
   volume = {
     my-vol = {
       docker_volume_configuration = {
@@ -169,7 +163,6 @@ module "ecs_service" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
-
 }
 
 ################################################################################
@@ -395,9 +388,6 @@ module "product_dynamodb_table" {
 
   tags = local.tags
 }
-
-
-
 
 resource "aws_iam_role_policy" "task_definition_role-policy" {
   name = "${local.name}-task-definition-role-policy"
