@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket  = "lms-ecs-ec2-dev"
+    bucket  = "lms-playground"
     region  = "us-east-2"
     encrypt = true
     key     = "main/terraform.tfstate"

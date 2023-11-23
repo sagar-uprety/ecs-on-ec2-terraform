@@ -1,18 +1,4 @@
 repos:
-  - repo: https://github.com/terraform-docs/terraform-docs
-    rev: "v0.16.0"
-    hooks:
-      - id: terraform-docs-go
-        args: ["markdown", "table", "--output-file", "README.md", "./"]
-
-  - repo: local
-    hooks:
-      - id: Fetch remote template
-        name: Fetch template
-        entry: bash -c "git remote add template https://github.com/adexltd/terraform-aws-module-template.git || git fetch --all && git merge template/main --allow-unrelated-histories --autostash"
-        language: system
-        pass_filenames: false
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
@@ -25,7 +11,6 @@ repos:
         - id: check-ast
         - id: double-quote-string-fixer
         - id: detect-private-key
-        - id: detect-aws-credentials
         - id: debug-statements
         - id: requirements-txt-fixer
         - id: check-json
@@ -37,9 +22,3 @@ repos:
       - id: terraform_providers_lock
       - id: terraform_validate
       - id: terraform_tflint
-      # - id: terraform_checkov
-      # - id: terraform_tfsec
-      # - id: infracost_breakdown
-      #   args:
-      #    - --args=--path=./examples/complete
-      #   verbose: true
