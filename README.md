@@ -11,7 +11,7 @@ This repository contains Infrastructure as Code (IaC) using Terraform to deploy 
 
 ![AWS Architecture](./ecs-on-ec2-architecture.png)
 
-The infrastructure includes:
+The infrastructure includes the following:
 
 - **Networking Layer**:
   - VPC with CIDR `10.0.0.0/16`
