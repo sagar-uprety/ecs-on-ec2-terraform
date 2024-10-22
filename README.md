@@ -106,7 +106,7 @@ terraform destroy --var-file="dev.tfvars"
 * **`main.tf`**: Defines the core infrastructure for ecs_cluster, ecs_service, and supporting resources
 * **`variables.tf`**: Input variables for parameterization and sensitive data
 * **`provider.tf`**: Specifies the AWS provider
-* **`output.tf`**: Defines outputs such as Auto Scaling Group ID and RDS endpoint
+* **`output.tf`**: Defines outputs for the tf configs
 * **`dev.tfvars`**: Variables specific to the dev environment
 * **`versions.tf`**: Terraform version constraints and backend configuration 
 * **`locals.tf`**: local value to be used in main.tf
