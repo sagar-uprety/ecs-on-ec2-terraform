@@ -1,52 +1,162 @@
-# Terraform AWS ECS Deployment for Node.js App
+# AWS ECS on EC2 Terraform Deployment
+
+[![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 
 ## Overview
-This repository contains Terraform code to deploy a monolith Node.js application to AWS Elastic Container Service (ECS). It is designed as a practical component of the ECS Course by Adex, providing hands-on experience with AWS and Terraform.
 
-## About This Project
-This project is a part of the comprehensive ECS Course by Adex, which covers various aspects of deploying and managing applications using AWS ECS. To learn more about the concepts and gain deeper insights into ECS, check out the [ECS Course by Adex](#).
+This repository contains Infrastructure as Code (IaC) using Terraform to deploy a containerized application (Node.JS) on AWS Elastic Container Service (ECS) with EC2 launch type. The infrastructure is designed with high availability, scalability, and security best practices in mind.
+
+## Architecture Diagram
+
+![AWS Architecture](./ecs-on-ec2-architecture.png)
+
+The infrastructure includes:
+
+- **Networking Layer**:
+  - VPC with CIDR `10.0.0.0/16`
+  - 2 Public Subnets across different AZs
+  - 2 Private Subnets across different AZs
+  - NAT Gateways for private subnet internet access
+  - Internet Gateway for public subnet access
+
+- **Compute Layer**:
+  - ECS Cluster with EC2 launch type
+  - Auto Scaling Group for EC2 instances
+  - Application Load Balancer for traffic distribution
+  - ECS Tasks running containerized applications
+
+- **Data Layer**:
+  - DynamoDB Tables for User, Product, and Order management
+
+- **Monitoring, Security & Others**:
+  - Amazon CloudWatch for monitoring and logging
+  - IAM roles and policies for secure access management
+  - Security Groups for network access control
+  - ECR Repository that contains the docker image
 
 ## Prerequisites
-- AWS Account
-- Terraform installed
-- Docker installed
-- Completion or ongoing participation in the ECS Course by Adex is recommended for better understanding.
 
-## Installation
-To use this project, follow these steps:
-1. Clone the repository: `git clone https://github.com/adexltd/lms-ecs-ec2-terraform`
-2. Navigate to the cloned directory: `cd lms-ecs-ec2-terraform`
+- AWS Account with administrative access or required permission
+- [Terraform](https://www.terraform.io/downloads.html) (>= 1.0.0)
+- [AWS CLI](https://aws.amazon.com/cli/) configured with appropriate credentials
+- [Docker](https://www.docker.com/get-started) for container image building
 
-## Getting Started
+## Quick Start Guide 
 
-1. Run `terraform init` to initialize the provider and modules.
-2. Run `terraform plan --var-file="dev.tfvars"` to see the changes that will be made.
-3. Run `terraform apply --var-file="dev.tfvars"` to apply the changes.
-4. **Caution:** Run `terraform destroy --var-file="dev.tfvars"` to destroy and cleanup all the resources.
+
+1. Clone the repository:
+```bash
+git clone https://github.com/sagar-uprety/ecs-on-ec2-terraform.git
+cd ecs-on-ec2-terraform
+```
+2. You need an S3 bucket as a backend for Terraform state. Create one if you have not already and update the  backend configuration in `versions.tf`:
+```bash
+  ...
+  backend "s3" {
+    bucket  = "dev-terraform-state-bucket" # update the bucket name here
+    region  = "us-east-2"
+    encrypt = true
+    key     = "main/terraform.tfstate"
+  }
+  ...
+```
+
+3. Initialize Terraform:
+```bash
+terraform init
+```
+
+4. Configure your deployment:
+```bash
+# Edit dev.tfvars with your configuration
+```
+
+5. Review the deployment plan:
+```bash
+terraform plan --var-file="dev.tfvars"
+```
+
+6. Apply the infrastructure:
+```bash
+terraform apply --var-file="dev.tfvars"
+```
+
+7. Cleanup the infrastructure (Caution: If you do not destroy the resources, cost might incure):
+```bash
+terraform destroy --var-file="dev.tfvars"
+```
 
 ## Project Structure
 
-- `main.tf`:  This file is executed by Terraform to create, modify, or destroy the resources defined in it.
-- `variable.tf`: Variables can be used for a variety of purposes such as storing sensitive information, providing inputs to resources, or defining defaults for a module.
-- `versions.tf`: The versions.tf file in Terraform is used to set constraints on the Terraform version required for working with the configuration files.
-- `provider.tf`: The provider blocks in Terraform configuration files represent the cloud infrastructure or services that be managed by Terraform. Providers allow Terraform to deploy and manage resources in different cloud environments such as AWS, Azure, Google Cloud Platform, and more.
-- `output.tf`: Description of what this file does.
-- `.gitignore`: List of files to ignore in version control.
-- `.pre-commit-config.yaml`: Configuration file for pre-commit hooks.
+```
+.
+├── README.md
+├── main.tf                 # Main Terraform configuration
+├── variables.tf           # Input variables declaration
+├── outputs.tf            # Output values configuration
+├── providers.tf          # Provider configuration
+├── versions.tf           # Terraform version constraints and backend configuration 
+├── dev.tfvars          # Development environment variables
+└── .gitignore         # Git ignore rules
+```
+
+## Project Structure
+
+* **`main.tf`**: Defines the core infrastructure for ecs_cluster, ecs_service, and supporting resources
+* **`variables.tf`**: Input variables for parameterization and sensitive data
+* **`provider.tf`**: Specifies the AWS provider
+* **`output.tf`**: Defines outputs such as Auto Scaling Group ID and RDS endpoint
+* **`dev.tfvars`**: Variables specific to the dev environment
+* **`versions.tf`**: Terraform version constraints and backend configuration 
+* **`locals.tf`**: local value to be used in main.tf
+* **`.pre-commit-config.yaml`**: git pre-commit configuration 
+* **`.gitignore`**: Lists files to exclude from version control
+
+## Configuration
 
 
-## Architecture
-![AWS Architecture](architecture.png)
+### Required Variables
+
+| Variable Name | Description | Type | Default |
+|--------------|-------------|------|---------|
+| `environment` | Environment name | string | `` |
+| `application` | Application name | string | `` |
+| `owner` | Resource owner | string | `` |
+| `region` | AWS region to deploy resources | string | `` |
+
+### Optional Variables
+
+Refer to `variables.tf` for a complete list of optional variables and their default values.
+
+## Security Considerations
+
+- All EC2 instances are deployed in private subnets
+- Security groups follow the principle of least privilege
+- IAM roles are scoped to minimum required permissions
+
+## Monitoring and Logging
+
+The deployment includes:
+- CloudWatch metrics for ECS services and tasks
+- Container insights for performance monitoring
+- ALB access logs (stored in S3)
+- ECS task logs in CloudWatch Logs
 
 ## Contributing
-Contributions to this project are welcome. Please follow these steps:
+
 1. Fork the repository
-2. Create a new branch: `git checkout -b feature-branch`
-3. Commit your changes and push to the branch
-4. Create a pull request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
-This repo is licensed under [The MIT License](https://opensource.org/license/mit/)
 
-## Contact
-For questions or feedback, contact the course instructor [Sagar Uprety](https://bio.link/sagaruprety) at [sagar.uprety@adex.ltd].
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [AWS ECS Documentation](https://docs.aws.amazon.com/ecs/)
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+- [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
