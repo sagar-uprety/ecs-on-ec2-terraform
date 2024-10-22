@@ -143,6 +143,10 @@ The deployment includes:
 - ALB access logs (stored in S3)
 - ECS task logs in CloudWatch Logs
 
+## Application Source Repository
+
+The sample e-commerce application (Node.js) with source code and dockerfile can be found [here](https://github.com/sagar-uprety/ecs-shop-app-nodejs-sample)
+
 ## Contributing
 
 1. Fork the repository
